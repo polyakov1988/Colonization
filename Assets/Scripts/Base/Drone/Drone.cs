@@ -1,3 +1,4 @@
+using System;
 using Base.Drone.StateMachine;
 using Base.Drone.StateMachine.State;
 using UnityEngine;
@@ -9,21 +10,34 @@ namespace Base.Drone
         [SerializeField] private DroneAnimator _droneAnimator;
         [SerializeField] private DroneCollisionHandler _collisionHandler;
         [SerializeField] private float _speed;
+        [SerializeField] private Renderer _renderer;
         
         private DroneStateMachine _stateMachine;
+
+        public event Action<Drone> ReadyToBuildNewBase;
+        public event Action<Drone> BaseChanged;
         
-        public Vector3 StandPosition { get; private set; }
-        public Vector3 TargetPosition { get; private set; }
+        public Stand.Stand Stand { get; private set; }
+        public Transform CubePosition { get; private set; }
         public bool HasCube { get; private set; }
         public bool IsBusy { get; private set; }
+        
+        public Transform FlagPosition { get; private set; }
         
         public DroneAnimator Animator => _droneAnimator;
         public float Speed => _speed;
         
         public void SetFree()
         {
-            IsBusy = false;
             HasCube = false;
+            CubePosition = null;
+            FlagPosition = null;
+            IsBusy = false;
+        }
+        
+        public void SetBusy()
+        {
+            IsBusy = true;
         }
 
         private void OnEnable()
@@ -36,20 +50,42 @@ namespace Base.Drone
             _collisionHandler.CubeFounded -= OnCubeFounded;
         }
 
-        public void Init(Transform parent, Vector3 standPosition)
+        public void Init(Transform parent, Stand.Stand stand, Color color)
         {
+            _renderer.material.color = color;
             _stateMachine = new DroneStateMachine(this);
             transform.SetParent(parent);
-            transform.position = standPosition;
-            StandPosition = standPosition;
+            transform.position = stand.transform.position;
+            Stand = stand;
             _droneAnimator.Init();
         }
 
-        public void StartMining(Vector3 cubePosition)
+        public void StartMining(Transform cubePosition)
+        {
+            CubePosition = cubePosition;
+            _stateMachine.SwitchState<MiningState>();
+        }
+        
+        public void BuildNewBase(Transform flagPosition)
         {
             IsBusy = true;
-            TargetPosition = cubePosition;
-            _stateMachine.SwitchState<MiningState>();
+            FlagPosition = flagPosition;
+            _stateMachine.SwitchState<BuildingBaseState>();
+        }
+
+        public void InvokeReadyToBuildNewBase()
+        {
+            ReadyToBuildNewBase?.Invoke(this);
+        }
+
+        public void ChangeBase(Color newColor, Stand.Stand newStand, Transform parent)
+        {
+            _renderer.material.color = newColor;
+            transform.SetParent(parent);
+            Stand.SetFree();
+            Stand = newStand;
+            BaseChanged?.Invoke(this);
+            _stateMachine.SwitchState<ReturningToBaseState>();
         }
 
         private void OnCubeFounded()

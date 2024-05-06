@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class CubeSpawner : MonoBehaviour
@@ -24,9 +25,9 @@ public class CubeSpawner : MonoBehaviour
             yield return new WaitForSeconds(Random.Range(_timeoutMin, _timeoutMax));
 
             Cube cube = _pool.GetCube();
-            cube.Init();
             cube.Used += PutCubeIntoPool;
             cube.transform.position = _spawnPointGenerator.GetRandomPoint();
+            cube.Init();
         }
     }
 

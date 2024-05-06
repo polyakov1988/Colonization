@@ -1,26 +1,36 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace Base.Stand
 {
     public class StandHandler : MonoBehaviour
     {
-        private Stand[] _stands;
+        private List<Stand> _stands;
+
+        public event Action FreePlacesEnded; 
 
         public void Init()
         {
-            _stands = transform.GetComponentsInChildren<Stand>();
+            _stands = transform.GetComponentsInChildren<Stand>().ToList();
         }
 
-        public Vector3 GetStandPositionByIndex(int index)
+        public Stand GetStand()
         {
-            if (index >= _stands.Length)
-                throw new ArgumentOutOfRangeException(nameof(index));
+            Stand stand = _stands.Find(stand => stand.IsBusy == false);
             
-            Stand stand = _stands[index];
             stand.SetBusy();
             
-            return stand.transform.position;
+            if (HasFreePlaces() == false)
+                FreePlacesEnded?.Invoke();
+            
+            return stand;
+        }
+
+        private bool HasFreePlaces()
+        {
+            return _stands.Find(stand => stand.IsBusy == false);
         }
     }
 }

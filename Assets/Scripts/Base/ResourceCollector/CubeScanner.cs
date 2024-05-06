@@ -13,7 +13,6 @@ namespace Base.ResourceCollector
         
         private WaitForSeconds _scanTimeout;
         private bool _isActive;
-        private Collider[] _colliders;
 
         public event Action<List<Cube>> CubesFounded; 
         
@@ -30,12 +29,13 @@ namespace Base.ResourceCollector
             while (_isActive)
             {
                 List<Cube> cubes = new List<Cube>();
-                
-                _colliders = Physics.OverlapSphere(transform.position, _scanRadius, _cubeMask);
-                
-                foreach (var coll in _colliders)
+
+                Collider[] results = new Collider[6];
+                int numColliders = Physics.OverlapSphereNonAlloc(transform.position, _scanRadius, results, _cubeMask);
+
+                for (int i = 0; i < numColliders; i++)
                 {
-                    Cube cube = coll.GetComponent<Cube>();
+                    Cube cube = results[i].GetComponent<Cube>();
 
                     if (cube.IsReserved == false)
                     {

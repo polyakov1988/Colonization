@@ -12,7 +12,12 @@ namespace Base.Drone
             if (other.TryGetComponent(out Cube cube))
             {
                 cube.OffGravity();
-                cube.transform.SetParent(transform);
+
+                if (cube.transform.parent == null && cube.CanBeTaken)
+                {
+                    cube.transform.SetParent(transform);
+                    cube.Take();
+                }
                 
                 CubeFounded?.Invoke();
             }

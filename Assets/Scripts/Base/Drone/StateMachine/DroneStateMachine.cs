@@ -14,7 +14,9 @@ namespace Base.Drone.StateMachine
             _states = new List<IState>()
             {
                 new IdlingState(drone),
-                new MiningState(drone, this)
+                new MiningState(drone, this),
+                new BuildingBaseState(drone, this),
+                new ReturningToBaseState(drone, this)
             };
 
             _currentState = _states[0];

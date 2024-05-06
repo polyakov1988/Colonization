@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using Base.Drone;
@@ -24,14 +23,31 @@ namespace Base.ResourceCollector
         private void StartMining(List<Cube> foundedCubes)
         {
             int freeDronesCount = _droneDispatcher.GetFreeDronesCount();
-            
-            if (freeDronesCount == 0)
-                return;
 
-            if (foundedCubes.Count > freeDronesCount)
-                foundedCubes = foundedCubes.GetRange(0, freeDronesCount - 1);
+            if (freeDronesCount == 0)
+            {
+                foreach (Cube foundedCube in foundedCubes)
+                {
+                    foundedCube.CancelReserve();
+                    
+                }
+                
+                return;
+            }
+
+            List<Cube> targetCubes = foundedCubes;
             
-            _droneDispatcher.DoTasks(foundedCubes.Select(cube => cube.transform.position).ToList());
+            if (foundedCubes.Count > freeDronesCount)
+            {
+                targetCubes = foundedCubes.GetRange(0, freeDronesCount - 1);
+
+                for (int i = freeDronesCount; i < foundedCubes.Count; i++)
+                {
+                    foundedCubes[i].CancelReserve();
+                }
+            }
+            
+            _droneDispatcher.DoTasks(targetCubes.Select(cube => cube.transform).ToList());
         }
     }
 }
