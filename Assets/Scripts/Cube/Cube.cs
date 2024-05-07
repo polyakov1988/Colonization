@@ -5,37 +5,13 @@ using UnityEngine;
 public class Cube : MonoBehaviour
 {
     private Rigidbody _rigidbody;
-
-    public event Action<Cube> Used;
     
-    public bool IsReserved { get; private set; }
-    public bool CanBeTaken { get; private set; }
+    public event Action<Cube> Moved;
+    public event Action<Cube> Received;
 
     private void Awake()
     {
-        IsReserved = true;
         _rigidbody = GetComponent<Rigidbody>();
-    }
-
-    public void Init()
-    {
-        IsReserved = false;
-        CanBeTaken = true;
-    }
-
-    public void Reserve()
-    {
-        IsReserved = true;
-    }
-    
-    public void CancelReserve()
-    {
-        IsReserved = false;
-    }
-
-    public void Take()
-    {
-        CanBeTaken = false;
     }
 
     public void OnGravity()
@@ -49,8 +25,13 @@ public class Cube : MonoBehaviour
         _rigidbody.velocity = Vector3.zero;
     }
 
-    public void InvokeUsed()
+    public void InvokeMoved()
     {
-        Used?.Invoke(this);
+        Moved?.Invoke(this);
+    }
+    
+    public void InvokeReceived()
+    {
+        Received?.Invoke(this);
     }
 }

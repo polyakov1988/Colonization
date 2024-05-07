@@ -13,6 +13,7 @@ namespace Base.ResourceCollector
         
         private WaitForSeconds _scanTimeout;
         private bool _isActive;
+        private CubeHandler _cubeHandler;
 
         public event Action<List<Cube>> CubesFounded; 
         
@@ -20,7 +21,11 @@ namespace Base.ResourceCollector
         {
             _isActive = true;
             _scanTimeout = new WaitForSeconds(_timeout);
+        }
 
+        public void Init(CubeHandler cubeHandler)
+        {
+            _cubeHandler = cubeHandler;
             StartCoroutine(ScanArea());
         }
 
@@ -28,26 +33,26 @@ namespace Base.ResourceCollector
         {
             while (_isActive)
             {
+                yield return _scanTimeout;
+                
                 List<Cube> cubes = new List<Cube>();
 
                 Collider[] results = new Collider[6];
-                int numColliders = Physics.OverlapSphereNonAlloc(transform.position, _scanRadius, results, _cubeMask);
+                int numColliders = Physics.OverlapSphereNonAlloc(transform.position, _scanRadius, results, _cubeMask, QueryTriggerInteraction.Collide);
 
                 for (int i = 0; i < numColliders; i++)
                 {
                     Cube cube = results[i].GetComponent<Cube>();
 
-                    if (cube.IsReserved == false)
+                    if (_cubeHandler.CubeCanByReserved(cube))
                     {
-                        cube.Reserve();
+                        _cubeHandler.ReserveCube(cube);
                         cubes.Add(cube);
                     }
                 }
                 
                 if (cubes.Count != 0) 
                     CubesFounded?.Invoke(cubes);
-
-                yield return _scanTimeout;
             }
         }
     }

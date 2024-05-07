@@ -10,6 +10,8 @@ namespace Base.ResourceCollector
         [SerializeField] private CubeScanner _cubeScanner;
         [SerializeField] private DroneDispatcher _droneDispatcher;
 
+        private CubeHandler _cubeHandler;
+        
         private void OnEnable()
         {
             _cubeScanner.CubesFounded += StartMining;
@@ -20,6 +22,13 @@ namespace Base.ResourceCollector
             _cubeScanner.CubesFounded -= StartMining;
         }
 
+        public void Init(CubeHandler cubeHandler)
+        {
+            _cubeHandler = cubeHandler;
+            _cubeScanner.Init(_cubeHandler);
+            
+        }
+
         private void StartMining(List<Cube> foundedCubes)
         {
             int freeDronesCount = _droneDispatcher.GetFreeDronesCount();
@@ -28,8 +37,7 @@ namespace Base.ResourceCollector
             {
                 foreach (Cube foundedCube in foundedCubes)
                 {
-                    foundedCube.CancelReserve();
-                    
+                    _cubeHandler.CancelReserveCube(foundedCube);
                 }
                 
                 return;
@@ -39,11 +47,11 @@ namespace Base.ResourceCollector
             
             if (foundedCubes.Count > freeDronesCount)
             {
-                targetCubes = foundedCubes.GetRange(0, freeDronesCount - 1);
+                targetCubes = foundedCubes.GetRange(0, freeDronesCount);
 
                 for (int i = freeDronesCount; i < foundedCubes.Count; i++)
                 {
-                    foundedCubes[i].CancelReserve();
+                    _cubeHandler.CancelReserveCube(foundedCubes[i]);
                 }
             }
             

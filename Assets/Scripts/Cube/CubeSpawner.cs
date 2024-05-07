@@ -1,6 +1,7 @@
+using System;
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 public class CubeSpawner : MonoBehaviour
 {
@@ -10,6 +11,8 @@ public class CubeSpawner : MonoBehaviour
     [SerializeField] private int _timeoutMax;
     
     private bool _isActive;
+
+    public event Action<Cube> CubeSpawned;
 
     private void Awake()
     {
@@ -25,15 +28,13 @@ public class CubeSpawner : MonoBehaviour
             yield return new WaitForSeconds(Random.Range(_timeoutMin, _timeoutMax));
 
             Cube cube = _pool.GetCube();
-            cube.Used += PutCubeIntoPool;
             cube.transform.position = _spawnPointGenerator.GetRandomPoint();
-            cube.Init();
+            CubeSpawned?.Invoke(cube);
         }
     }
 
-    private void PutCubeIntoPool(Cube cube)
+    public void PutCubeIntoPool(Cube cube)
     {
-        cube.Used -= PutCubeIntoPool;
         _pool.PutCube(cube);
     }
 }

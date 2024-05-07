@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Base.Stand;
 using UnityEngine;
 
@@ -16,11 +17,12 @@ namespace Base.Drone
         private WaitForSeconds _searchFreeDroneTimeout;
         private int _startDroneCount;
         private Transform _flagPosition;
+        private CubeHandler _cubeHandler;
 
         public event Action<Drone> NotifyBaseToBuildNewBase;
         public event Action DroneRemoved;
 
-        public void Init(Color color, DroneSpawner droneSpawner, int startDroneCount)
+        public void Init(Color color, DroneSpawner droneSpawner, int startDroneCount, CubeHandler cubeHandler)
         {
             _startDroneCount = startDroneCount;
             _searchFreeDroneTimeout = new WaitForSeconds(1);
@@ -28,6 +30,7 @@ namespace Base.Drone
             _drones = new List<Drone>();
             _standHandler.Init();
             _color = color;
+            _cubeHandler = cubeHandler;
             
             for (int i = 0; i < _startDroneCount; i++)
             {
@@ -37,25 +40,12 @@ namespace Base.Drone
 
         public int GetFreeDronesCount()
         {
-            int count = 0;
-            
-            foreach (var drone in _drones)
-            {
-                if (drone.IsBusy == false)
-                {
-                    count++;
-                }
-            }
-
-            return count;
+            return _drones.FindAll(drone => drone.IsBusy == false).Count;
         }
 
         public void DoTasks(List<Transform> cubePositions)
         {
             List<Drone> freeDrones = _drones.FindAll(drone => drone.IsBusy == false);
-
-            if (cubePositions.Count > freeDrones.Count)
-                throw new ArgumentOutOfRangeException(nameof(cubePositions));
 
             for (int i = 0; i < cubePositions.Count; i++)
             {
@@ -68,7 +58,7 @@ namespace Base.Drone
             Drone drone = _droneSpawner.GetDrone();
             drone.BaseChanged += RemoveDrone;
             
-            drone.Init(transform, _standHandler.GetStand(), _color);
+            drone.Init(transform, _standHandler.GetStand(), _color, _cubeHandler);
                 
             _drones.Add(drone);
         }

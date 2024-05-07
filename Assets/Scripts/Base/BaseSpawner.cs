@@ -13,6 +13,7 @@ namespace Base
         [SerializeField] private FlagSetter _flagSetter;
         [SerializeField] private int _rootBaseDroneCount;
         [SerializeField] private int _newBaseDroneCount;
+        [SerializeField] private CubeHandler _cubeHandler;
 
         private int _maxBaseCount;
         private readonly Vector3 _rootPosition = Vector3.zero;
@@ -31,7 +32,7 @@ namespace Base
 
             Color color = _colors.Dequeue();
             
-            rootBase.InitAsRoot(color, _rootPosition, _droneSpawner, _rootBaseDroneCount);
+            rootBase.InitAsRoot(color, _rootPosition, _droneSpawner, _rootBaseDroneCount, _cubeHandler);
             BaseCreatedForView?.Invoke(rootBase.ScoreCounter, color);
             BaseCreatedForPointGenerator?.Invoke();
             rootBase.StartWork();
@@ -63,7 +64,7 @@ namespace Base
             newBasePosition.x = dronePosition.x;
             newBasePosition.z = dronePosition.z;
             
-            newBase.InitAsNew(color, newBasePosition, _droneSpawner, _newBaseDroneCount, drone);
+            newBase.InitAsNew(color, newBasePosition, _droneSpawner, _newBaseDroneCount, drone, _cubeHandler);
             BaseCreatedForView?.Invoke(newBase.ScoreCounter, color);
             BaseCreatedForPointGenerator?.Invoke();
             newBase.StartWork();

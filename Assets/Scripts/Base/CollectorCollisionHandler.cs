@@ -13,7 +13,7 @@ namespace Base
             {
                 CubeReceived?.Invoke();
                 cube.OffGravity();
-                cube.InvokeUsed();
+                cube.InvokeReceived();
             }
         }
     }

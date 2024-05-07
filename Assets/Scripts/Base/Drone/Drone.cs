@@ -27,6 +27,16 @@ namespace Base.Drone
         public DroneAnimator Animator => _droneAnimator;
         public float Speed => _speed;
         
+        private void OnEnable()
+        {
+            _collisionHandler.CubeFounded += OnCubeFounded;
+        }
+
+        private void OnDisable()
+        {
+            _collisionHandler.CubeFounded -= OnCubeFounded;
+        }
+        
         public void SetFree()
         {
             HasCube = false;
@@ -39,18 +49,8 @@ namespace Base.Drone
         {
             IsBusy = true;
         }
-
-        private void OnEnable()
-        {
-            _collisionHandler.CubeFounded += OnCubeFounded;
-        }
-
-        private void OnDisable()
-        {
-            _collisionHandler.CubeFounded -= OnCubeFounded;
-        }
-
-        public void Init(Transform parent, Stand.Stand stand, Color color)
+        
+        public void Init(Transform parent, Stand.Stand stand, Color color, CubeHandler cubeHandler)
         {
             _renderer.material.color = color;
             _stateMachine = new DroneStateMachine(this);
@@ -58,6 +58,7 @@ namespace Base.Drone
             transform.position = stand.transform.position;
             Stand = stand;
             _droneAnimator.Init();
+            _collisionHandler.Init(cubeHandler);
         }
 
         public void StartMining(Transform cubePosition)
