@@ -21,6 +21,7 @@ namespace Base.Drone.StateMachine.State
         
         public void Enter()
         {
+            _drone.SetBusy();
             _drone.Animator.StartMoving();
 
             TakeCube();
@@ -34,7 +35,7 @@ namespace Base.Drone.StateMachine.State
         private void TakeCube()
         {
             Transform transform = _drone.transform;
-            Vector3 target = _drone.TargetPosition;
+            Vector3 target = _drone.CubePosition.position;
             
             Guid uid = Guid.NewGuid();
             
@@ -89,13 +90,14 @@ namespace Base.Drone.StateMachine.State
         private void GoToStand()
         {
             Transform transform = _drone.transform;
-            
+            Vector3 standPosition = _drone.Stand.transform.position;
+                
             Sequence sequence = DOTween.Sequence();
             
-            sequence.Append(transform.DOLookAt(new Vector3(_drone.StandPosition.x, FlightAltitude, _drone.StandPosition.z), LookAtDuration));
-            sequence.Append(transform.DOMove(new Vector3(_drone.StandPosition.x, FlightAltitude, _drone.StandPosition.z), 
-                Vector3.Distance(transform.position, _drone.StandPosition) / _drone.Speed));
-            sequence.Append(transform.DOMoveY(_drone.StandPosition.y, MoveYDuration));
+            sequence.Append(transform.DOLookAt(new Vector3(standPosition.x, FlightAltitude, standPosition.z), LookAtDuration));
+            sequence.Append(transform.DOMove(new Vector3(standPosition.x, FlightAltitude, standPosition.z), 
+                Vector3.Distance(transform.position, standPosition) / _drone.Speed));
+            sequence.Append(transform.DOMoveY(standPosition.y, MoveYDuration));
 
             sequence.OnComplete(SwitchStateToIdling);
         }

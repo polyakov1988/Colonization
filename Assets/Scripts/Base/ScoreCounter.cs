@@ -9,7 +9,7 @@ namespace Base
         
         private int _score;
 
-        public event Action<int> ScoreIncrised;
+        public event Action<int> ScoreUpdated;
             
         private void OnEnable()
         {
@@ -24,13 +24,19 @@ namespace Base
         private void Awake()
         {
             _score = 0;
-            ScoreIncrised?.Invoke(_score);
+            ScoreUpdated?.Invoke(_score);
+        }
+
+        public void Pay(int price)
+        {
+            _score -= price;
+            ScoreUpdated?.Invoke(_score);
         }
 
         private void Increment()
         {
             _score++;
-            ScoreIncrised?.Invoke(_score);
+            ScoreUpdated?.Invoke(_score);
         }
     }
 }

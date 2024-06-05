@@ -12,7 +12,8 @@ namespace Base
             if (other.TryGetComponent(out Cube cube))
             {
                 CubeReceived?.Invoke();
-                cube.InvokeUsed();
+                cube.OffGravity();
+                cube.InvokeReceived();
             }
         }
     }

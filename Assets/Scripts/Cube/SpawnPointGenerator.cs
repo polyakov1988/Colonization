@@ -1,6 +1,9 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using Base;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 public class SpawnPointGenerator : MonoBehaviour
 {
@@ -11,8 +14,19 @@ public class SpawnPointGenerator : MonoBehaviour
     [SerializeField] private float _step;
     [SerializeField] private float _radiusDetection;
     [SerializeField] private LayerMask _baseMask;
+    [SerializeField] private BaseSpawner _baseSpawner;
         
     private List<Vector3> _spawnPoints;
+
+    private void OnEnable()
+    {
+        _baseSpawner.BaseCreatedForPointGenerator += RemoveBadPoints;
+    }
+
+    private void OnDisable()
+    {
+        _baseSpawner.BaseCreatedForPointGenerator += RemoveBadPoints;
+    }
 
     private void Awake()
     {
@@ -21,6 +35,11 @@ public class SpawnPointGenerator : MonoBehaviour
         Generate();
     }
 
+    public Vector3 GetRandomPoint()
+    {
+        return _spawnPoints[Random.Range(0, _spawnPoints.Count)];
+    }
+    
     private void Generate()
     {
         for (int x = (int) _minX; x < _maxX; x += (int) _step)
@@ -33,10 +52,10 @@ public class SpawnPointGenerator : MonoBehaviour
             }
         }
         
-        removeBadPoints();
+        RemoveBadPoints();
     }
 
-    private void removeBadPoints()
+    private void RemoveBadPoints()
     {
         foreach (var point in _spawnPoints.ToList())
         {
@@ -47,8 +66,5 @@ public class SpawnPointGenerator : MonoBehaviour
         }
     }
 
-    public Vector3 GetRandomPoint()
-    {
-        return _spawnPoints[Random.Range(0, _spawnPoints.Count)];
-    }
+    
 }

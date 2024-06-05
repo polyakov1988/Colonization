@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class CubePool : MonoBehaviour
@@ -15,7 +16,6 @@ public class CubePool : MonoBehaviour
         }
 
         Cube cube = _queue.Dequeue();
-        cube.gameObject.SetActive(true);
         
         return cube;
     }

@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using Base.Drone;
@@ -11,6 +10,8 @@ namespace Base.ResourceCollector
         [SerializeField] private CubeScanner _cubeScanner;
         [SerializeField] private DroneDispatcher _droneDispatcher;
 
+        private CubeHandler _cubeHandler;
+        
         private void OnEnable()
         {
             _cubeScanner.CubesFounded += StartMining;
@@ -21,17 +22,40 @@ namespace Base.ResourceCollector
             _cubeScanner.CubesFounded -= StartMining;
         }
 
+        public void Init(CubeHandler cubeHandler)
+        {
+            _cubeHandler = cubeHandler;
+            _cubeScanner.Init(_cubeHandler);
+            
+        }
+
         private void StartMining(List<Cube> foundedCubes)
         {
             int freeDronesCount = _droneDispatcher.GetFreeDronesCount();
-            
-            if (freeDronesCount == 0)
-                return;
 
-            if (foundedCubes.Count > freeDronesCount)
-                foundedCubes = foundedCubes.GetRange(0, freeDronesCount - 1);
+            if (freeDronesCount == 0)
+            {
+                foreach (Cube foundedCube in foundedCubes)
+                {
+                    _cubeHandler.CancelReserveCube(foundedCube);
+                }
+                
+                return;
+            }
+
+            List<Cube> targetCubes = foundedCubes;
             
-            _droneDispatcher.DoTasks(foundedCubes.Select(cube => cube.transform.position).ToList());
+            if (foundedCubes.Count > freeDronesCount)
+            {
+                targetCubes = foundedCubes.GetRange(0, freeDronesCount);
+
+                for (int i = freeDronesCount; i < foundedCubes.Count; i++)
+                {
+                    _cubeHandler.CancelReserveCube(foundedCubes[i]);
+                }
+            }
+            
+            _droneDispatcher.DoTasks(targetCubes.Select(cube => cube.transform).ToList());
         }
     }
 }

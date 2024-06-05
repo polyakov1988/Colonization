@@ -6,18 +6,23 @@ namespace View
 {
     public class ScoreView : MonoBehaviour
     {
-        [SerializeField] private ScoreCounter _scoreCounter;
         [SerializeField] private TMP_Text _text;
 
-        private void OnEnable()
+        private ScoreCounter _scoreCounter;
+
+        public void Init(ScoreCounter scoreCounter, Color color)
         {
-            _scoreCounter.ScoreIncrised += ShowScore;
+            _scoreCounter = scoreCounter;
+            _scoreCounter.ScoreUpdated += ShowScore;
+            _text.color = color;
         }
 
-        private void OnDestroy()
+        private void OnDisable()
         {
-            _scoreCounter.ScoreIncrised -= ShowScore;
+            _scoreCounter.ScoreUpdated -= ShowScore;
         }
+        
+        
 
         private void ShowScore(int score)
         {
